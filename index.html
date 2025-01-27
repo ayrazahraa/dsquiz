@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demon Slayer Quiz</title>
+    <style>
+        /* Same styling as before, with added progress bar */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            margin: 20px 0;
+        }
+        
+        .progress {
+            height: 100%;
+            background: #e74c3c;
+            transition: width 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗡️ Demon Slayer Quiz 🌸</h1>
+        <div class="progress-bar"><div class="progress" id="progress"></div></div>
+        <div id="quiz"></div>
+        <div class="score" id="score"></div>
+    </div>
+
+    <script>
+        const questions = JSON.parse(localStorage.getItem('demonSlayerQuestions')) || [];
+        let currentQuestion = 0;
+        let totalMarks = 0;
+
+        function showQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('progress').style.width = 
+                `${(currentQuestion / questions.length) * 100}%`;
+
+            quiz.innerHTML = `
+                <div class="question">
+                    ${q.image ? `<img src="${q.image}" alt="Question image" style="max-width: 300px; margin: 10px 0;">` : ''}
+                    <h2>${q.question} (${q.marks} marks)</h2>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <button onclick="checkAnswer(${i})">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function checkAnswer(selected) {
+            if(selected === questions[currentQuestion].answer) {
+                totalMarks += questions[currentQuestion].marks;
+            }
+            
+            currentQuestion++;
+            if(currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                endQuiz();
+            }
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById('score').innerHTML = `
+                Total Marks: ${totalMarks}/${questions.reduce((a, q) => a + q.marks, 0)}
+            `;
+        }
+
+        function endQuiz() {
+            quiz.innerHTML = `
+                <div class="question">
+                    <h2>Quiz Complete!</h2>
+                    <p>Your Score: ${totalMarks}</p>
+                    <button onclick="location.reload()">Retry</button>
+                </div>
+            `;
+        }
+
+        // Initialize quiz
+        showQuestion();
+        updateScore();
+    </script>
+</body>
+</html>
